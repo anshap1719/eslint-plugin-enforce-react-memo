@@ -78,6 +78,13 @@ ruleTester.run('memoize-component', memoizeComponent, {
                 export default Component;
             `,
             errors: [{ messageId: 'general' }],
+            output: `
+                const Component = () => {
+                    return <div>Something</div>;
+                };
+
+                export default memo(Component);
+            `,
         },
         {
             code: `
@@ -86,6 +93,11 @@ ruleTester.run('memoize-component', memoizeComponent, {
                 };
             `,
             errors: [{ messageId: 'general' }],
+            output: `
+                export const Component = memo(() => {
+                    return <div>Something</div>;
+                });
+            `,
         },
         {
             code: `
@@ -94,6 +106,11 @@ ruleTester.run('memoize-component', memoizeComponent, {
                 });
             `,
             errors: [{ messageId: 'general' }],
+            output: `
+                export const Component = memo(forwardRef(() => {
+                    return <div>Something</div>;
+                }));
+            `,
         },
         {
             code: `
@@ -102,6 +119,11 @@ ruleTester.run('memoize-component', memoizeComponent, {
                 };
             `,
             errors: [{ messageId: 'general' }],
+            output: `
+                const NonExportedComponent = memo(() => {
+                    return <div>Something</div>;
+                });
+            `,
         },
     ],
 });

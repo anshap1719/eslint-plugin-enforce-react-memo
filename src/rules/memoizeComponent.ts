@@ -19,6 +19,7 @@ const memoizeComponent = createRule({
                 additionalProperties: false,
             },
         ],
+        fixable: 'code',
     },
     defaultOptions: [{ ignoreHooks: [] as string[] }],
     create(context) {
@@ -38,15 +39,39 @@ const memoizeComponent = createRule({
                             ? declaration.id.name
                             : undefined;
 
-                    const isExportMemoized = (
+                    const defaultExportNode = (
                         (node.parent as any).body as TSESTree.BaseNode[]
-                    )?.some(item => {
-                        if (
+                    )?.find(item => {
+                        return (
                             item.type ===
                             AST_NODE_TYPES.ExportDefaultDeclaration
-                        ) {
+                        );
+                    }) as TSESTree.ExportDefaultDeclaration | undefined;
+
+                    if (
+                        init.type === AST_NODE_TYPES.ArrowFunctionExpression &&
+                        name &&
+                        // Shallow checking for component declaration
+                        name.charAt(0) === name.charAt(0).toUpperCase()
+                    ) {
+                        if (!defaultExportNode) {
+                            // TODO: Only report if component
+                            context.report({
+                                node,
+                                messageId: 'general',
+                                *fix(fixer) {
+                                    yield fixer.insertTextBefore(init, 'memo(');
+
+                                    yield fixer.insertTextAfter(init, ')');
+                                },
+                            });
+
+                            return;
+                        }
+
+                        const isDefaultExportMemoized = (() => {
                             const exportDeclaration = (
-                                item as TSESTree.ExportDefaultDeclaration
+                                defaultExportNode as TSESTree.ExportDefaultDeclaration
                             ).declaration;
 
                             if (
@@ -62,22 +87,26 @@ const memoizeComponent = createRule({
                                     return true;
                                 }
                             }
+                        })();
+
+                        if (isDefaultExportMemoized) {
+                            return;
                         }
 
-                        return false;
-                    });
-
-                    if (
-                        init.type === AST_NODE_TYPES.ArrowFunctionExpression &&
-                        name &&
-                        // Shallow checking for component declaration
-                        name.charAt(0) === name.charAt(0).toUpperCase() &&
-                        !isExportMemoized
-                    ) {
-                        // TODO: Only report if component
                         context.report({
-                            node,
+                            node: defaultExportNode,
                             messageId: 'general',
+                            *fix(fixer) {
+                                yield fixer.insertTextBefore(
+                                    defaultExportNode.declaration,
+                                    'memo('
+                                );
+
+                                yield fixer.insertTextAfter(
+                                    defaultExportNode.declaration,
+                                    ')'
+                                );
+                            },
                         });
 
                         return;
@@ -90,6 +119,14 @@ const memoizeComponent = createRule({
                                 context.report({
                                     node,
                                     messageId: 'general',
+                                    *fix(fixer) {
+                                        yield fixer.insertTextBefore(
+                                            init,
+                                            'memo('
+                                        );
+
+                                        yield fixer.insertTextAfter(init, ')');
+                                    },
                                 });
 
                                 return;
