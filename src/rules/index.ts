@@ -1,4 +1,4 @@
-import enforceReactMemo from './enforceReactMemo';
+import enforceReactMemo from './memoizeComponent';
 
 const rules = {
     'enforce-react-memo': enforceReactMemo,

@@ -1,9 +1,8 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { CallExpression, Identifier } from 'node-estree/dist/estree';
 import createRule from '../util/createRule';
 
-const enforceReactMemo = createRule({
-    name: 'enforce-react-memo',
+const memoizeComponent = createRule({
+    name: 'memoize-component',
     meta: {
         docs: {
             description: 'React components should be memoized',
@@ -92,6 +91,7 @@ const enforceReactMemo = createRule({
                                     node,
                                     messageId: 'general',
                                 });
+
                                 return;
                             }
                         }
@@ -102,4 +102,4 @@ const enforceReactMemo = createRule({
     },
 });
 
-export default enforceReactMemo;
+export default memoizeComponent;

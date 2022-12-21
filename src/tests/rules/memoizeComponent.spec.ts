@@ -1,5 +1,5 @@
 import { RuleTester } from '@typescript-eslint/utils/dist/ts-eslint';
-import enforceReactMemo from '../../rules/enforceReactMemo';
+import memoizeComponent from '../../rules/memoizeComponent';
 
 const ruleTester = new RuleTester({
     parserOptions: {
@@ -10,7 +10,7 @@ const ruleTester = new RuleTester({
     parser: require.resolve('@typescript-eslint/parser'),
 });
 
-ruleTester.run('enforce-react-memo', enforceReactMemo, {
+ruleTester.run('memoize-component', memoizeComponent, {
     valid: [
         {
             code: `
